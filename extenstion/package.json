@@ -1,0 +1,19 @@
+{
+  "name": "insta-notes-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for saving Instagram posts with notes and reminders",
+  "main": "background.js",
+  "scripts": {
+    "build": "esbuild bundle/firebase-entry.js --bundle --format=esm --outfile=firebase-bundle.js --minify",
+    "dev": "esbuild bundle/firebase-entry.js --bundle --format=esm --outfile=firebase-bundle.js --watch"
+  },
+  "dependencies": {
+    "firebase": "^10.12.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  },
+  "keywords": ["chrome-extension", "instagram", "notes", "reminders"],
+  "author": "",
+  "license": "MIT"
+}

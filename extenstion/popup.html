@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insta Notes</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup-container">
+      <!-- Header with gradient background -->
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-container">
+            
+            <div class="logo-text">
+              <h1>Insta Notes</h1>
+              <p class="tagline">Save with purpose</p>
+            </div>
+          </div>
+        </div>
+        <div class="header-decoration"></div>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="auth-status" class="auth-status">
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading your notes...</p>
+        </div>
+      </div>
+      
+      <!-- User Info Section -->
+      <div id="user-info" class="user-info" style="display: none;">
+        <!-- User Profile Card -->
+        <div class="user-card">
+          <div class="user-avatar">
+            
+          </div>
+          <div class="user-details">
+            <h3 id="user-email" class="user-email">user@example.com</h3>
+            <p class="user-status">Active</p>
+          </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-container">
+          <div class="stat-card">
+            
+            <div class="stat-content">
+              <span class="stat-number" id="notes-count">0</span>
+              <span class="stat-label">Total Notes</span>
+            </div>
+          </div>
+          <div class="stat-card">
+
+            <div class="stat-content">
+              <span class="stat-number" id="reminders-count">0</span>
+              <span class="stat-label">Reminders</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="actions-container">
+          <h3 class="section-title">Quick Actions</h3>
+          <div class="action-buttons">
+            <button id="view-notes-btn" class="action-btn primary">
+              
+              <span class="btn-text">View Dashboard</span>
+              <span class="btn-arrow">→</span>
+            </button>
+            <button id="open-instagram-btn" class="action-btn secondary">
+              
+              <span class="btn-text">Open Instagram</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Logout Button -->
+        <div class="logout-container">
+          <button id="logout-btn" class="logout-btn" title="Sign Out">
+            
+            <span class="logout-label">Sign Out</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Login Prompt -->
+      <div id="login-prompt" class="login-prompt" style="display: none;">
+        <div class="login-container">
+          <h2 class="login-title">Welcome to Insta Notes</h2>
+          <p class="login-description">
+            Sign in to start saving Instagram posts with personal notes and smart reminders
+          </p>
+          <button id="login-btn" class="login-btn">
+
+            <span class="btn-text">Sign In</span>
+          </button>
+          <div class="login-features">
+            <div class="feature">
+              
+              <span class="feature-text">Add personal notes</span>
+            </div>
+            <div class="feature">
+              
+              <span class="feature-text">Set smart reminders</span>
+            </div>
+            <div class="feature">
+              
+              <span class="feature-text">Email notifications</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-content">
+          <p class="footer-text">Made with ❤️ for Instagram lovers</p>
+          <div class="footer-links">
+            <span class="version">v1.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script src="popup.js"></script>
+  </body>
+</html>

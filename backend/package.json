@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "test-reminder": "node test-reminder.js",
+    "test-reminder-no-email": "node test-reminder-no-email.js",
+    "test-email-setup": "node test-email-setup.js",
+    "update-notes": "node update-existing-notes.js",
+    "update-emails": "node update-notes-with-emails.js",
+    "test-email-integration": "node test-email-integration.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.4.0",
+    "mongoose": "^8.16.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.7",
+    "dotenv": "^16.3.1"
+  }
+}

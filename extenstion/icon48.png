@@ -1,0 +1,16 @@
+# Icon48.png Placeholder
+
+This should be a 48x48 pixel PNG icon for the Chrome extension.
+
+You can create a simple icon using:
+1. Any image editor (Photoshop, GIMP, Canva)
+2. Online icon generators
+3. Or use a simple emoji/icon from a free icon library
+
+Suggested design:
+- Instagram-style colors (#0095f6, #262626)
+- Simple note/paper icon with Instagram logo
+- 48x48 pixels
+- PNG format with transparency
+
+Place the actual icon48.png file in this directory to replace this placeholder. 
