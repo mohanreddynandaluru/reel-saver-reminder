@@ -141,9 +141,16 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(notes => {
+          // Handle both array and object responses
+          if (notes && !Array.isArray(notes) && Array.isArray(notes.notes)) {
+            notes = notes.notes;
+          }
+          if (!Array.isArray(notes)) {
+            notes = [];
+          }
           const totalNotes = notes.length;
           const activeReminders = notes.filter(note => note.isReminderSet && !note.reminderTriggered).length;
-          
+
           // Animate the numbers
           animateNumber(notesCount, totalNotes);
           animateNumber(remindersCount, activeReminders);

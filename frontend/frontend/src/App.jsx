@@ -6,6 +6,8 @@ import Header from './components/Header.jsx';
 import Home from './components/Home.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Login from './components/Login.jsx';
+import ViewNote from './components/ViewNote.jsx';
+import EditNote from './components/EditNote.jsx';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -40,6 +42,22 @@ function AppRoutes() {
               <>
                 <Header />
                 <Dashboard />
+              </>
+            </ProtectedRoute>
+          } />
+          <Route path="/notes/:id" element={
+            <ProtectedRoute>
+              <>
+                <Header />
+                <ViewNote />
+              </>
+            </ProtectedRoute>
+          } />
+          <Route path="/notes/:id/edit" element={
+            <ProtectedRoute>
+              <>
+                <Header />
+                <EditNote />
               </>
             </ProtectedRoute>
           } />

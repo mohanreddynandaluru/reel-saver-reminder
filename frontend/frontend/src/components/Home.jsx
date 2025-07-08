@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Instagram, 
   Bell, 
@@ -108,6 +109,7 @@ const stats = [
 function Home() {
   const [isVisible, setIsVisible] = useState({});
   const { isDark, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -158,7 +160,10 @@ function Home() {
                   <Moon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 )}
               </button>
-              <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-200">
+              <button 
+                onClick={() => navigate('/login')}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-200"
+              >
                 Get Started Free
               </button>
             </div>
@@ -172,12 +177,12 @@ function Home() {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center space-x-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-purple-200 dark:border-purple-700 rounded-full px-4 py-2 mb-8">
               <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-              <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Never lose inspiration again</span>
+              <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Never lose Content again</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-tight">
-              Save Instagram posts with
-              <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"> smart notes</span>
+              Save Instagram Reels with
+              <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"> smart notes and get notified</span>
             </h1>
             
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
@@ -186,7 +191,10 @@ function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
-              <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
+              <button 
+                onClick={() => navigate('/login')}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
+              >
                 <Download className="h-5 w-5" />
                 <span>Install Extension</span>
               </button>
@@ -327,7 +335,10 @@ function Home() {
           <p className="text-xl text-white/90 mb-8">
             Join thousands of creators who never lose track of their favorite content.
           </p>
-          <button className="bg-white text-purple-600 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 mx-auto">
+          <button 
+            onClick={() => navigate('/login')}
+            className="bg-white text-purple-600 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 mx-auto"
+          >
             <Download className="h-5 w-5" />
             <span>Get Started Free</span>
           </button>

@@ -111,6 +111,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.storage.local.remove(["firebaseToken", "user", "userEmail", "lastNoteSaved"]);
     });
   }
+  
+  if (message.type === "UPDATE_NOTE") {
+    updateNoteInBackend(message.data).then(result => {
+      // Clear any old reminder for this note
+      chrome.alarms.clear(`reminder_${message.data.id}`);
+      // Check if reminder is in the future and set it
+      const reminderTime = new Date(message.data.reminder).getTime();
+      if (reminderTime > Date.now()) {
+        setReminder({
+          note: message.data.note,
+          url: message.data.url,
+          reminderTime: message.data.reminder,
+          noteId: message.data.id
+        });
+      }
+      sendResponse({ success: true, message: "Note updated and reminder scheduled if in future." });
+    }).catch(err => {
+      sendResponse({ success: false, message: "Failed to update note." });
+    });
+    return true; // for async sendResponse
+  }
 });
 
 // Save note to backend
@@ -214,7 +235,10 @@ async function saveNoteToBackend(noteData) {
   }
 }
 
-// Set reminder alarm
+// Map to store notificationId to post URL
+const notificationPostUrlMap = {};
+
+// Update setReminder to store the post URL when creating the notification
 function setReminder(reminderData) {
   const reminderTime = new Date(reminderData.reminderTime).getTime();
   const now = Date.now();
@@ -240,13 +264,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name.startsWith('reminder_')) {
     const noteId = alarm.name.replace('reminder_', '');
     const reminderData = await chrome.storage.local.get(`reminder_${noteId}`);
-    
     if (reminderData[`reminder_${noteId}`]) {
       const data = reminderData[`reminder_${noteId}`];
-      
       // ⏰ Showing reminder notification: ${data}
-      
-      // Show reminder notification with default icon
       chrome.notifications.create({
         type: 'basic',
         iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
@@ -259,10 +279,12 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         if (chrome.runtime.lastError) {
           console.error("❌ Reminder notification error:", chrome.runtime.lastError);
         } else {
-          // ✅ Reminder notification created with ID: ${notificationId}
+          // Store the post URL for this notification
+          if (data.url) {
+            notificationPostUrlMap[notificationId] = data.url;
+          }
         }
       });
-      
       // Clean up
       chrome.storage.local.remove(`reminder_${noteId}`);
       chrome.alarms.clear(alarm.name);
@@ -273,14 +295,38 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 // Handle notification clicks
 chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
   if (buttonIndex === 0) { // "View Post" or "View Dashboard" button
-    chrome.notifications.get(notificationId, (notification) => {
-      if (notification.title === 'Insta Notes' && notification.message === 'Note saved successfully!') {
-        // Open dashboard
-        chrome.tabs.create({ url: 'http://localhost:3000' });
-      } else {
-        // Open Instagram
-        chrome.tabs.create({ url: 'https://www.instagram.com' });
-      }
-    });
+    // Directly use the notificationId to look up the URL
+    const postUrl = notificationPostUrlMap[notificationId];
+    if (postUrl) {
+      chrome.tabs.create({ url: postUrl });
+      delete notificationPostUrlMap[notificationId];
+      return;
+    }
+    // Fallback: open Instagram home if URL not found
+    chrome.tabs.create({ url: 'https://www.instagram.com' });
   }
 });
+
+// Add this function after saveNoteToBackend
+async function updateNoteInBackend(noteData) {
+  const { firebaseToken, user } = await chrome.storage.local.get(["firebaseToken", "user"]);
+  if (!firebaseToken) throw new Error("No Firebase token available");
+
+  if (user && user.email) {
+    noteData.userEmail = user.email;
+  }
+
+  // Use PUT for updating
+  const response = await fetch(`http://localhost:3005/api/notes/${noteData.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${firebaseToken}`,
+    },
+    body: JSON.stringify(noteData),
+  });
+
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.message || "Failed to update note");
+  return result;
+}
