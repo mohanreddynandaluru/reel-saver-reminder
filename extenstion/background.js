@@ -65,15 +65,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "LOGIN_SUCCESS") {
     // ✅ Login success, closing login tab
     // Close the login tab and notify content script with error handling
-    chrome.tabs.query({ url: chrome.runtime.getURL("firebase-auth.html") }, (tabs) => {
-      tabs.forEach(tab => {
-        chrome.tabs.remove(tab.id, () => {
-          if (chrome.runtime.lastError) {
-            // ⚠️ Tab already closed or doesn't exist: ${chrome.runtime.lastError.message}
-          }
-        });
-      });
-    });
+    // chrome.tabs.query({ url: chrome.runtime.getURL("firebase-auth.html") }, (tabs) => {
+    //   tabs.forEach(tab => {
+    //     chrome.tabs.remove(tab.id, () => {
+    //       if (chrome.runtime.lastError) {
+    //         // ⚠️ Tab already closed or doesn't exist: ${chrome.runtime.lastError.message}
+    //       }
+    //     });
+    //   });
+    // });
     
     // Notify all Instagram tabs about successful login with error handling
     chrome.tabs.query({ url: "*://*.instagram.com/*" }, (tabs) => {

@@ -147,3 +147,4 @@ popup-preview.html
 
 # Firebase bundle (will be generated during build)
 firebase-bundle.js 
+firebase-config.js

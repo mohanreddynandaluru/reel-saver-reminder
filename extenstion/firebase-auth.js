@@ -1,14 +1,12 @@
-import { auth } from "./firebase-config.js";
+import { auth } from "./firebase-config.js"; // Your Firebase project config
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
-} from "./firebase-bundle.js";
+} from "./firebase-bundle.js"; // Firebase Auth functions
 
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
-  // 🔧 DOM loaded, initializing auth form...
-  
   // Get all required elements
   const loginForm = document.getElementById("loginForm");
   const email = document.getElementById("email");
@@ -19,8 +17,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const toggleMode = document.getElementById("toggleMode");
   const formTitle = document.getElementById("formTitle");
   const formDesc = document.getElementById("formDesc");
+  const loadingIndicator = document.getElementById("loading"); // Get the loading div
+  const modeIndicator = document.getElementById("modeIndicator"); // Get the mode indicator paragraph
 
-  // Check if all elements exist
+  // Check if all required elements exist
+  // This is a robust check to prevent errors if elements are missing
   const elements = {
     loginForm,
     email,
@@ -30,7 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
     errorMessage,
     toggleMode,
     formTitle,
-    formDesc
+    formDesc,
+    loadingIndicator,
+    modeIndicator // Include the new element in the check
   };
 
   const missingElements = Object.entries(elements)
@@ -38,51 +41,67 @@ document.addEventListener('DOMContentLoaded', function() {
     .map(([name]) => name);
 
   if (missingElements.length > 0) {
-    console.error("❌ Missing DOM elements:", missingElements);
-    console.error("❌ Available elements:", Object.keys(elements).filter(key => elements[key]));
-    return;
+    console.error("❌ Missing DOM elements. Please check your HTML file:", missingElements);
+    console.error("❌ Available elements found:", Object.keys(elements).filter(key => elements[key]));
+    return; // Stop execution if critical elements are missing
   }
 
-      // ✅ All DOM elements found successfully
+  let isSignUpMode = false; // Tracks whether the form is in Sign Up or Sign In mode
 
-  let isSignUpMode = false;
-
-  // Show error message
+  // Function to display error messages
   function showError(message) {
     errorMessage.textContent = message;
-    errorMessage.style.display = "block";
+    errorMessage.style.display = "block"; // Make error message visible
   }
 
-  // Hide error message
+  // Function to hide error messages
   function hideError() {
-    errorMessage.style.display = "none";
+    errorMessage.style.display = "none"; // Hide error message
+    errorMessage.textContent = ""; // Clear content
   }
 
-  // Show loading state
+  // Function to manage loading state (buttons disabled, loading indicator shown)
   function setLoading(isLoading) {
-    loginBtn.disabled = isLoading;
-    signupBtn.disabled = isLoading;
-    loginBtn.textContent = isSignUpMode ? "Sign In" : (isLoading ? "Signing in..." : "Sign In");
-    signupBtn.textContent = isSignUpMode ? (isLoading ? "Signing up..." : "Sign Up") : "Sign Up";
+    loginBtn.disabled = isLoading; // Disable login button
+    signupBtn.disabled = isLoading; // Disable signup button
+
+    // Update button text based on current mode and loading status
+    if (isSignUpMode) {
+      signupBtn.textContent = isLoading ? "Signing up..." : "Sign Up";
+      // In sign-up mode, only signup button is visible and active.
+      // loginBtn text won't be seen but we keep it consistent.
+      loginBtn.textContent = "Sign In";
+    } else {
+      loginBtn.textContent = isLoading ? "Signing in..." : "Sign In";
+      // In sign-in mode, only login button is visible and active.
+      signupBtn.textContent = "Sign Up";
+    }
+
+    // Toggle the visibility of the main loading indicator div
+    if (loadingIndicator) {
+      loadingIndicator.style.display = isLoading ? "block" : "none";
+    }
   }
 
-  // Handle login
+  // Event listener for form submission (handles both login and sign up)
   loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    hideError();
-    setLoading(true);
+    e.preventDefault(); // Prevent default form submission behavior (page reload)
+    hideError(); // Clear any previous errors
+    setLoading(true); // Set loading state (disables buttons, shows spinner)
 
+    // Determine whether to sign up or log in based on 'isSignUpMode'
     if (isSignUpMode) {
       // Sign up flow
       try {
         await createUserWithEmailAndPassword(auth, email.value, password.value);
-        // Success will be handled by onAuthStateChanged
+        // If successful, onAuthStateChanged will handle the next steps (redirection)
       } catch (err) {
-        setLoading(false);
-        let errorMsg = "An error occurred during sign up.";
+        setLoading(false); // Remove loading state on error
+        let errorMsg = "An unexpected error occurred during sign up.";
         switch (err.code) {
           case "auth/email-already-in-use":
-            errorMsg = "This email is already in use.";
+            errorMsg = "This email is already in use. Please sign in instead.";
+            setSignUpMode(false); // Switch to sign-in mode for convenience
             break;
           case "auth/invalid-email":
             errorMsg = "Please enter a valid email address.";
@@ -90,19 +109,22 @@ document.addEventListener('DOMContentLoaded', function() {
           case "auth/weak-password":
             errorMsg = "Password should be at least 6 characters.";
             break;
+          case "auth/too-many-requests":
+            errorMsg = "Too many attempts. Please try again later.";
+            break;
           default:
-            errorMsg = err.message;
+            errorMsg = err.message; // Fallback to Firebase's default error message
         }
-        showError(errorMsg);
+        showError(errorMsg); // Display the user-friendly error message
       }
     } else {
       // Login flow
       try {
         await signInWithEmailAndPassword(auth, email.value, password.value);
-        // Success will be handled by onAuthStateChanged
+        // If successful, onAuthStateChanged will handle the next steps (redirection)
       } catch (err) {
-        setLoading(false);
-        let errorMsg = "An error occurred during sign in.";
+        setLoading(false); // Remove loading state on error
+        let errorMsg = "An unexpected error occurred during sign in.";
         switch (err.code) {
           case "auth/user-not-found":
             errorMsg = "No account found with this email address.";
@@ -120,63 +142,65 @@ document.addEventListener('DOMContentLoaded', function() {
             errorMsg = "This account has been disabled.";
             break;
           default:
-            errorMsg = err.message;
+            errorMsg = err.message; // Fallback to Firebase's default error message
         }
-        showError(errorMsg);
+        showError(errorMsg); // Display the user-friendly error message
       }
-    }
-  });
-
-  // Handle sign up button (submit form in sign up mode)
-  signupBtn.addEventListener("click", (e) => {
-    if (!isSignUpMode) {
-      // Switch to sign up mode
-      setSignUpMode(true);
-    } else {
-      // Submit the form (sign up)
-      loginForm.requestSubmit();
     }
   });
 
   // Handle toggle mode button
   if (toggleMode) {
     toggleMode.addEventListener("click", () => {
-      setSignUpMode(!isSignUpMode);
+      setSignUpMode(!isSignUpMode); // Toggle between sign-up and sign-in mode
     });
   }
 
+  // Function to update UI based on sign-up or sign-in mode
   function setSignUpMode(signUp) {
     isSignUpMode = signUp;
     if (signUp) {
       formTitle.textContent = "Create Account";
       formDesc.textContent = "Sign up to start saving Instagram posts with notes and reminders";
-      loginBtn.style.display = "none";
-      signupBtn.style.display = "block";
+      
+      // Control button visibility
+      loginBtn.style.display = "none"; // Hide login button
+      signupBtn.style.display = "block"; // Show signup button
+
       if (toggleMode) {
         toggleMode.textContent = "Already have an account? Sign in";
+      }
+      if (modeIndicator) {
+        modeIndicator.textContent = "Sign Up"; // Update mode indicator text
       }
     } else {
       formTitle.textContent = "Insta Notes";
       formDesc.textContent = "Sign in to save Instagram posts with notes and reminders";
-      loginBtn.style.display = "block";
-      signupBtn.style.display = "block";
+
+      // Control button visibility
+      loginBtn.style.display = "block"; // Show login button
+      signupBtn.style.display = "none"; // Hide signup button
+
       if (toggleMode) {
         toggleMode.textContent = "Don't have an account? Sign up";
       }
+      if (modeIndicator) {
+        modeIndicator.textContent = "Sign In"; // Update mode indicator text
+      }
     }
-    hideError();
-    setLoading(false);
+    hideError(); // Clear error message when switching modes
+    setLoading(false); // Ensure loading state is off when mode changes
   }
 
-  // Default to login mode
+  // Default to login mode when the page loads
   setSignUpMode(false);
 
-  // Handle authentication state changes
+  // Handle authentication state changes (this listener runs whenever user signs in/out)
   onAuthStateChanged(auth, (user) => {
     if (user) {
-              // ✅ User signed in: ${user.email}
+      // User signed in
       
-      // Store user info in chrome storage
+      // Store user info in chrome storage (assuming this is a Chrome Extension)
       chrome.storage.local.set({
         user: {
           uid: user.uid,
@@ -192,23 +216,13 @@ document.addEventListener('DOMContentLoaded', function() {
         window.close();
       }, 1000);
     } else {
-              // ❌ User signed out
-      setLoading(false);
+      // User signed out
+      setLoading(false); // Ensure loading state is off if user signs out
     }
   });
 
-  // Focus on email input when page loads
+  // Focus on email input when page loads for better UX
   if (email) {
     email.focus();
   }
-  
-      // ✅ Auth form initialization complete
 });
-
-// Fallback for immediate execution if DOM is already loaded
-if (document.readyState === 'loading') {
-  // ⏳ DOM still loading, waiting for DOMContentLoaded...
-} else {
-  // ⚡ DOM already loaded, triggering initialization...
-  document.dispatchEvent(new Event('DOMContentLoaded'));
-}

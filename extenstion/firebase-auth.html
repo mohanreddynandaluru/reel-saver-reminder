@@ -122,6 +122,14 @@
             background: #e9ecef;
         }
 
+        .btn-primary.active, .btn-secondary.active {
+            box-shadow: 0 0 0 2px #667eea;
+            border-color: #667eea;
+        }
+        #loginForm {
+            transition: opacity 0.2s;
+        }
+
         .toggle-mode {
             text-align: center;
             margin-top: 20px;
@@ -143,11 +151,11 @@
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 14px;
-            display: none;
+            display: none; /* Hidden by default */
         }
 
         .loading {
-            display: none;
+            display: none; /* Hidden by default, JavaScript will show/hide this */
             text-align: center;
             margin: 20px 0;
         }
@@ -167,9 +175,12 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* The 'hidden' class from your original CSS isn't used in this HTML/JS,
+           but keeping it commented out for reference if you intend to use it.
         .hidden {
             display: none;
         }
+        */
     </style>
 </head>
 <body>
@@ -184,6 +195,12 @@
             <p id="formDesc">Sign in to save Instagram posts with notes and reminders</p>
         </div>
 
+        <!-- Mode indicator -->
+        <p id="modeIndicator" style="text-align:center; font-weight:600; color:#667eea; margin-bottom:16px;">Sign In</p>
+
+        <!-- Divider -->
+        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e1e5e9;">
+
         <div id="errorMessage" class="error"></div>
 
         <form id="loginForm">
@@ -197,13 +214,14 @@
                 <input type="password" id="password" name="password" required placeholder="Enter your password">
             </div>
 
+            <!-- Removed inline styles from buttons; JS will control display -->
             <button type="submit" id="loginBtn" class="btn btn-primary">Sign In</button>
-            <button type="button" id="signupBtn" class="btn btn-secondary">Sign Up</button>
+            <button type="submit" id="signupBtn" class="btn btn-secondary">Sign Up</button>
         </form>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Signing in...</p>
+            <p>Processing request...</p>
         </div>
 
         <div class="toggle-mode">
@@ -211,7 +229,9 @@
         </div>
     </div>
 
-    <script src="error-handler.js"></script>
+    <!-- Your Firebase configuration and bundle imports should be here -->
+    <!-- Assuming these files exist in your project structure: -->
+    <!-- <script src="error-handler.js"></script> -->
     <script type="module" src="firebase-auth.js"></script>
 </body>
-</html> 
+</html>
