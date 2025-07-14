@@ -22,7 +22,7 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
 
 // Schedule reminder check every minute
 cron.schedule('* * * * *', async () => {
-  // Checking for due reminders...
+  console.log('[CRON] Checking for due reminders at', new Date().toISOString());
   await checkAndSendReminders();
 });
 
@@ -36,9 +36,10 @@ async function checkAndSendReminders() {
       reminderAttempts: { $lt: 3 } // Max 3 attempts
     });
 
-    // Found ${dueReminders.length} due reminders
+    console.log(`[REMINDER] Found ${dueReminders.length} due reminders at ${now.toISOString()}`);
 
     for (const reminder of dueReminders) {
+      console.log(`[REMINDER] Processing note _id=${reminder._id}, userEmail=${reminder.userEmail}, reminder=${reminder.reminder}`);
       await sendReminder(reminder);
     }
   } catch (error) {
@@ -53,58 +54,48 @@ async function sendReminder(note) {
     note.lastReminderAttempt = new Date();
     await note.save();
 
-    // Get user email from Firebase (only if email notification is enabled)
     let userEmail = note.userEmail;
     if (!userEmail && note.emailNotification) {
       try {
-        // Fetching email for user ${note.userid} from Firebase...
         const userRecord = await admin.auth().getUser(note.userid);
         userEmail = userRecord.email;
-        
-        // Update note with user email for future use
         note.userEmail = userEmail;
         await note.save();
-        // Fetched and saved email for user ${note.userid}: ${userEmail}
+        console.log(`[REMINDER] Fetched user email from Firebase for userId=${note.userid}: ${userEmail}`);
       } catch (error) {
-        console.error(`Could not get user email for ${note.userid}:`, error.message);
-        // Don't return here, just continue without email
+        console.error(`[REMINDER] Could not get user email for ${note.userid}:`, error.message);
         userEmail = null;
       }
     }
 
-    // Send email notification
     if (userEmail && note.emailNotification) {
+      console.log(`[REMINDER] Attempting to send email to ${userEmail} for note _id=${note._id}`);
       await sendEmailNotification(note, userEmail);
       note.reminderSent = true;
-      // Email sent for note ${note._id} to ${userEmail}
+      console.log(`[REMINDER] Email sent for note _id=${note._id} to ${userEmail}`);
     } else if (userEmail && !note.emailNotification) {
-      // Email notification disabled for note ${note._id}
+      console.log(`[REMINDER] Email notification disabled for note _id=${note._id}`);
     } else {
-      // No email address found for note ${note._id} - using browser notifications only
+      console.log(`[REMINDER] No email address found for note _id=${note._id} - using browser notifications only`);
     }
 
-    // Mark reminder as triggered
     note.reminderTriggered = true;
     await note.save();
-
-    // Reminder processed for note ${note._id}
+    console.log(`[REMINDER] Reminder processed for note _id=${note._id}`);
 
   } catch (error) {
-    console.error(`Error sending reminder for note ${note._id}:`, error);
-    
-    // If max attempts reached, mark as failed
+    console.error(`[REMINDER] Error sending reminder for note _id=${note._id}:`, error);
     if (note.reminderAttempts >= 3) {
       note.reminderTriggered = true;
       await note.save();
-      // Max attempts reached for note ${note._id}
+      console.log(`[REMINDER] Max attempts reached for note _id=${note._id}`);
     }
   }
 }
 
 async function sendEmailNotification(note, userEmail) {
-  // Check if email service is configured
   if (!transporter) {
-    // Email service not configured. Skipping email notification.
+    console.log('[REMINDER] Email service not configured. Skipping email notification.');
     return;
   }
 
@@ -151,9 +142,9 @@ async function sendEmailNotification(note, userEmail) {
 
   try {
     await transporter.sendMail(mailOptions);
-    // Email sent successfully to ${userEmail}
+    console.log(`[REMINDER] Email sent successfully to ${userEmail}`);
   } catch (error) {
-    console.error(`Failed to send email to ${userEmail}:`, error.message);
+    console.error(`[REMINDER] Failed to send email to ${userEmail}:`, error.message);
     throw error;
   }
 }
