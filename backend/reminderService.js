@@ -22,7 +22,6 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
 
 // Schedule reminder check every minute
 cron.schedule('* * * * *', async () => {
-  console.log('[CRON] Checking for due reminders at', new Date().toISOString());
   await checkAndSendReminders();
 });
 
@@ -36,14 +35,11 @@ async function checkAndSendReminders() {
       reminderAttempts: { $lt: 3 } // Max 3 attempts
     });
 
-    console.log(`[REMINDER] Found ${dueReminders.length} due reminders at ${now.toISOString()}`);
-
     for (const reminder of dueReminders) {
-      console.log(`[REMINDER] Processing note _id=${reminder._id}, userEmail=${reminder.userEmail}, reminder=${reminder.reminder}`);
       await sendReminder(reminder);
     }
   } catch (error) {
-    console.error('Error checking reminders:', error);
+    // Error checking reminders
   }
 }
 
@@ -61,41 +57,33 @@ async function sendReminder(note) {
         userEmail = userRecord.email;
         note.userEmail = userEmail;
         await note.save();
-        console.log(`[REMINDER] Fetched user email from Firebase for userId=${note.userid}: ${userEmail}`);
       } catch (error) {
-        console.error(`[REMINDER] Could not get user email for ${note.userid}:`, error.message);
         userEmail = null;
       }
     }
 
     if (userEmail && note.emailNotification) {
-      console.log(`[REMINDER] Attempting to send email to ${userEmail} for note _id=${note._id}`);
       await sendEmailNotification(note, userEmail);
       note.reminderSent = true;
-      console.log(`[REMINDER] Email sent for note _id=${note._id} to ${userEmail}`);
     } else if (userEmail && !note.emailNotification) {
-      console.log(`[REMINDER] Email notification disabled for note _id=${note._id}`);
+      // Email notification disabled for note _id=${note._id}
     } else {
-      console.log(`[REMINDER] No email address found for note _id=${note._id} - using browser notifications only`);
+      // No email address found for note _id=${note._id} - using browser notifications only
     }
 
     note.reminderTriggered = true;
     await note.save();
-    console.log(`[REMINDER] Reminder processed for note _id=${note._id}`);
 
   } catch (error) {
-    console.error(`[REMINDER] Error sending reminder for note _id=${note._id}:`, error);
     if (note.reminderAttempts >= 3) {
       note.reminderTriggered = true;
       await note.save();
-      console.log(`[REMINDER] Max attempts reached for note _id=${note._id}`);
     }
   }
 }
 
 async function sendEmailNotification(note, userEmail) {
   if (!transporter) {
-    console.log('[REMINDER] Email service not configured. Skipping email notification.');
     return;
   }
 
@@ -142,9 +130,7 @@ async function sendEmailNotification(note, userEmail) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`[REMINDER] Email sent successfully to ${userEmail}`);
   } catch (error) {
-    console.error(`[REMINDER] Failed to send email to ${userEmail}:`, error.message);
     throw error;
   }
 }

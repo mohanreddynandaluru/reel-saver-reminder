@@ -240,14 +240,17 @@ const notificationPostUrlMap = {};
 
 // Update setReminder to store the post URL when creating the notification
 function setReminder(reminderData) {
-  const reminderTime = new Date(reminderData.reminderTime).getTime();
+  // Convert UTC ISO string to local time for alarm scheduling
+  const reminderTimeUTC = reminderData.reminderTime;
+  const localDate = new Date(reminderTimeUTC); // This will be in local time
+  const localTimestamp = localDate.getTime();
   const now = Date.now();
   
-  if (reminderTime > now) {
-    const delayInMinutes = (reminderTime - now) / (1000 * 60);
+  if (localTimestamp > now) {
+    const delayInMinutes = (localTimestamp - now) / (1000 * 60);
     
     chrome.alarms.create(`reminder_${reminderData.noteId}`, {
-      when: reminderTime
+      when: localTimestamp
     });
     
     // Store reminder data
@@ -255,7 +258,7 @@ function setReminder(reminderData) {
       [`reminder_${reminderData.noteId}`]: reminderData
     });
     
-    // ⏰ Reminder set for ${new Date(reminderTime).toLocaleString()}
+    // ⏰ Reminder set for ${localDate.toLocaleString()}
   }
 }
 
