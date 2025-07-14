@@ -154,7 +154,7 @@ async function saveNoteToBackend(noteData) {
     }
     
     // 📤 Sending POST request to http://localhost:3005/api/notes
-    const response = await fetch("http://localhost:3005/api/notes", {
+    const response = await fetch("https://reelsaver.onrender.com/api/notes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -317,7 +317,7 @@ async function updateNoteInBackend(noteData) {
   }
 
   // Use PUT for updating
-  const response = await fetch(`http://localhost:3005/api/notes/${noteData.id}`, {
+  const response = await fetch(`https://reelsaver.onrender.com/api/notes/${noteData.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

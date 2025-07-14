@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function fetchUserStats() {
     chrome.storage.local.get('firebaseToken', function(result) {
       if (result.firebaseToken && notesCount && remindersCount) {
-        fetch('http://localhost:3005/api/notes', {
+        fetch('https://reelsaver.onrender.com/api/notes', {
           headers: {
             'Authorization': `Bearer ${result.firebaseToken}`
           }

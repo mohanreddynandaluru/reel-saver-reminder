@@ -19,7 +19,7 @@ function ViewNote() {
           navigate('/login');
           return;
         }
-        const response = await fetch(`http://localhost:3005/api/notes/${id}`, {
+        const response = await fetch(`https://reelsaver.onrender.com/api/notes/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

@@ -27,7 +27,7 @@ function Dashboard() {
         return;
       }
 
-      const response = await fetch('http://localhost:3005/api/notes', {
+      const response = await fetch('https://reelsaver.onrender.com/api/notes', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -66,7 +66,7 @@ function Dashboard() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3005/api/notes/${noteId}`, {
+      const response = await fetch(`https://reelsaver.onrender.com/api/notes/${noteId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

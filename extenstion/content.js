@@ -299,7 +299,9 @@ function showNoteModal() {
     // 💾 Save button clicked
     
     const note = document.getElementById("note-input").value.trim();
-    const reminder = document.getElementById("reminder").value;
+    const reminderInput = document.getElementById("reminder").value;
+    // Convert local datetime to UTC ISO string
+    const reminder = reminderInput ? new Date(reminderInput).toISOString() : null;
     const emailNotification = document.getElementById("email-notification").checked;
     const postUrl = window.location.href;
 
@@ -308,7 +310,7 @@ function showNoteModal() {
 
     const noteData = {
       note: note || "",
-      reminder: reminder || null,
+      reminder: reminder,
       url: postUrl,
       postDetails: postDetails,
       emailNotification: emailNotification

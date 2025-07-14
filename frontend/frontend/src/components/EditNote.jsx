@@ -20,7 +20,7 @@ function EditNote() {
           navigate('/login');
           return;
         }
-        const response = await fetch(`http://localhost:3005/api/notes/${id}`, {
+        const response = await fetch(`https://reelsaver.onrender.com/api/notes/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -70,13 +70,22 @@ function EditNote() {
         navigate('/login');
         return;
       }
-      const response = await fetch(`http://localhost:3005/api/notes/${id}`, {
+      // Convert reminder to UTC ISO string if present
+      const noteToSave = { ...note };
+      if (noteToSave.reminder) {
+        // Only convert if not already in ISO format
+        const isISO = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:.+Z/.test(noteToSave.reminder);
+        if (!isISO) {
+          noteToSave.reminder = new Date(noteToSave.reminder).toISOString();
+        }
+      }
+      const response = await fetch(`https://reelsaver.onrender.com/api/notes/${id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(note),
+        body: JSON.stringify(noteToSave),
       });
       if (!response.ok) {
         if (response.status === 401) {
